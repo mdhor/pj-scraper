@@ -1,4 +1,5 @@
 language: python
+python: 3.8
 dist: xenial
 virt: lxd
 cache: false
@@ -9,31 +10,43 @@ env:
     - LANG=en_US.UTF-8
 matrix:
   include:
-    - python: '3.6'
-      env:
-        - TOXENV=check
     - env:
         - TOXENV=py36
       python: '3.6'
+      stage: Tox
     - env:
         - TOXENV=py37
       python: '3.7'
+      stage: Tox
     - env:
         - TOXENV=py38
       python: '3.8'
-    - env:
-        - TOXENV=py39
-      python: '3.9'
-    - env:
-        - TOXENV=pypy3
-        - TOXPYTHON=pypy3
-      python: 'pypy3'
+      stage: Tox
+    - stage: Test
+      python: '3.8'
+      install:
+        - pipenv install --dev --ignore-pipfile
+      before_script: # code coverage tool
+        - curl -L https://codeclimate.com/downloads/test-reporter/test-reporter-latest-linux-amd64 > ./cc-test-reporter
+        - chmod +x ./cc-test-reporter
+        - ./cc-test-reporter before-build
+      script:
+        - pytest --cov-report xml --cov-report term
+      after_script:
+        - ./cc-test-reporter after-build --exit-code $TRAVIS_TEST_RESULT
+
+stages:
+  - Test
+  - name: Tox
+    if: branch = master
+
+
 before_install:
   - python --version
   - uname -a
   - lsb_release -a || true
 install:
-  - python -mpip install --progress-bar=off tox -rci/requirements.txt
+  - python -mpip install --progress-bar=off tox-travis -rci/requirements.txt
   - virtualenv --version
   - easy_install --version
   - pip --version
