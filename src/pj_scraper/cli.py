@@ -1,31 +1,10 @@
-"""
-Module that contains the command line app.
-
-Why does this file exist, and why not put this in __main__?
-
-  You might be tempted to import things from __main__ later, but that will cause
-  problems: the code will get executed twice:
-
-  - When you run `python -mpj_scraper` python will execute
-    ``__main__.py`` as a script. That means there won't be any
-    ``pj_scraper.__main__`` in ``sys.modules``.
-  - When you import __main__ it will get executed again (as a module) because
-    there's no ``pj_scraper.__main__`` in ``sys.modules``.
-
-  Also see (1) from http://click.pocoo.org/5/setuptools/#setuptools-integration
-"""
-import sys
+from .scraper import Scraper
 
 
-def main(argv=sys.argv):
-    """
-    Args:
-        argv (list): List of arguments
-
-    Returns:
-        int: A return code
-
-    Does stuff.
-    """
-    print(argv)
-    return 0
+def main():
+    s = Scraper()
+    products = s.get_all_products_from_category("smartklokker", no_pages=1)
+    sellers_and_prices = s.get_sellers_and_prices_of_product_list(
+        products["Product number"]
+    )
+    print(sellers_and_prices.head())
