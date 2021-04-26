@@ -1,9 +1,11 @@
 import json
 
+import bs4
 import numpy as np
 import pandas as pd
 import requests
-from bs4 import BeautifulSoup
+
+# from bs4 import BeautifulSoup
 
 
 class Scraper:
@@ -13,7 +15,7 @@ class Scraper:
 
     def get_sellers_and_prices_of_product_list(
         self, products: pd.Series
-    ) -> pd.DataFrame:
+    ) -> pd.DataFrame:  # pragma nocover
         """Get a full table of all sellers and prices for a list of products
 
         Args:
@@ -55,7 +57,7 @@ class Scraper:
             out = out.astype({"product_name": object, "product_number": np.int64})
         return out
 
-    def get_products_from_page(self, soup: BeautifulSoup) -> pd.DataFrame:
+    def get_products_from_page(self, soup: bs4.BeautifulSoup) -> pd.DataFrame:
         """Get products from a single page
 
         Args:
@@ -138,11 +140,12 @@ class Scraper:
         else:
             return None
 
-    def _get_soup(self, url: str, parser: str = "html.parser") -> BeautifulSoup:
+    def _get_soup(self, url: str, parser: str = "html.parser") -> bs4.BeautifulSoup:
         """ Make request and parse to bs4 soup """
         try:
             page = requests.get(url)
-            soup = BeautifulSoup(page.content.decode("unicode-escape"), parser)
+            print(page.content.decode("unicode-escape"))
+            soup = bs4.BeautifulSoup(page.content.decode("unicode-escape"), parser)
             return soup
         except:
             raise
